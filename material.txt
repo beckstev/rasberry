@@ -1,0 +1,4 @@
+Project: Spin
+- L293D (Introduction for a L293D: http://www.rakeshmondal.info/L293D-Motor-Driver)
+- DC Motor
+- Power Supply Module for the raspberry PI
