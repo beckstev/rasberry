@@ -1,6 +1,6 @@
 # Raspberry Pi Projects
 
-This reposetory includes projects for a Raspberry Pi.
+This repository includes projects for a Raspberry Pi.
 
 Some of this projects for example the spin- projects require also hardware like motors, resistors or some thing alse.
 You can find the requirements for each Project in the file 'materials.txt'.
