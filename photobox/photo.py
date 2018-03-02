@@ -13,26 +13,32 @@ SwitchPin = 33 # Switch to take a photo
 
 def setup():
     GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
-	GPIO.setup(ReadyPin, GPIO.OUT)    # input mode
-	GPIO.setup(PhotoPin, GPIO.OUT)
-	GPIO.setup(SwitchPin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+    GPIO.setup(ReadyPin, GPIO.OUT)    # input mode
+    GPIO.setup(PhotoPin, GPIO.OUT)
+    GPIO.setup(SwitchPin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+    GPIO.output(PhotoPin, False)
+    GPIO.output(ReadyPin,True)
     return 0
 
 
 def take_a_photo(max_file_number):
-    GPIO.output(PhotoPIN, True)
-    GPIO.output(ReadyPIN,False)
+    GPIO.output(PhotoPin, True)
+    GPIO.output(ReadyPin,False)
 
     max_file_number += 1
-    np.savetxt(filenumber.txt, last_name)
+    np.savetxt('filenumber.txt', [max_file_number])
 
-    gp( '--capture-image-and-download' )
-    os.rename( 'capt0000.jpg', 'photobox_' + str(last_name) + '.jpg')
+    gp( '--capture-image-and-download' ) #takeing a photo
+    
+    os.rename( 'capt0000.jpg', 'photobox_' + str(int(max_file_number)) + '.jpg') #rename file
     print('photo saved')
 
-    GPIO.output(PhotoPIN, False)
-    GPIO.output(ReadyPIN,True)
+    GPIO.output(PhotoPin, False)
+    GPIO.output(ReadyPin,True)
     return 0
+
+def destroy ():
+    GPIO.cleanup() 
 
 
 ##Change Folder
@@ -41,6 +47,13 @@ os.chdir("/home/pi/rasberry/photobox/photo_folder")
 max_file_number = 0
 
 with open('filenumber.txt', 'r') as f:
-    max_file_number = f.read()
+    max_file_number = float(f.read())
+
+print( type(max_file_number), max_file_number)
 ## Let's take some pictures!!
-take_a_photo(last_name)
+setup()
+time.sleep(5)
+try:
+    take_a_photo(max_file_number)
+except:
+    destroy()
