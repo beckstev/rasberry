@@ -2,6 +2,7 @@ import numpy as np
 import time
 import RPi.GPIO as GPIO
 from sh import gphoto2 as gp
+import os
 
 
 last_name = 0
@@ -17,7 +18,7 @@ def take_a_photo(last_name):
 
 
 ##Change Folder
-os.chdir(/home/pi/rasberry/photobox/photo_folder)
+os.chdir("/home/pi/rasberry/photobox/photo_folder")
 
 ## Let's take some pictures!!
 take_a_photo()
