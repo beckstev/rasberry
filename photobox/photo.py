@@ -12,7 +12,8 @@ def setup():
 
 def take_a_photo(last_name):
     last_name += 1
-    gp( '--capture-image-and-download --filename ' + 'last_name')
+    gp( '--capture-image-and-download' )
+    os.rename( 'capt0000.jpg', 'photobox_' + str(last_name) + '.jpg') 
     print('photo saved')
     return 0
 
@@ -21,4 +22,4 @@ def take_a_photo(last_name):
 os.chdir("/home/pi/rasberry/photobox/photo_folder")
 
 ## Let's take some pictures!!
-take_a_photo()
+take_a_photo(last_name)
