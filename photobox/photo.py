@@ -29,6 +29,7 @@ def take_a_photo(max_file_number):
     np.savetxt('filenumber.txt', [max_file_number])
 
     gp( '--capture-image-and-download' ) #takeing a photo
+    print('rename')
     
     os.rename( 'capt0000.jpg', 'photobox_' + str(int(max_file_number)) + '.jpg') #rename file
     print('photo saved')
@@ -52,7 +53,6 @@ with open('filenumber.txt', 'r') as f:
 print( type(max_file_number), max_file_number)
 ## Let's take some pictures!!
 setup()
-time.sleep(5)
 try:
     take_a_photo(max_file_number)
 except:
