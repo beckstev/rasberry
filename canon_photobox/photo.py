@@ -4,7 +4,6 @@ import RPi.GPIO as GPIO
 from sh import gphoto2 as gp
 import numpy as np
 import os
-from pynput.keyboard import Listener
 
 #Status LED
 ReadyPin = 37 # This Led will glow, when we are ready to take a photo
@@ -42,14 +41,8 @@ def take_a_photo(max_file_number):
 def destroy ():
     GPIO.cleanup()
 
-def on_press(key):
-    if str(key) == "'.'":
-        print('Take a Photo\n')
-        take_a_photo(max_file_number)
-    else:
-        print('nichts')
-        pass
 
+#################################################################################
 
 ##Change Folder
 os.chdir("/home/pi/rasberry/photobox/photo_folder")
@@ -63,7 +56,6 @@ print( type(max_file_number), max_file_number)
 ## Let's take some pictures!!
 setup()
 try:
-    with Listener( on_press=on_press,) as listener:
-    listener.join()
+    take_a_photo(max_file_number)
 except:
     destroy()
