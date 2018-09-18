@@ -1,29 +1,51 @@
 import flask
 from webinterface import app
-image_name = 'image_1.jpg'
-image_number = 1
-width = 4000
-height =  3000
-name_url = "localhost:5000/" + str(image_number+1)
+from flask_socketio import SocketIO
+import threading
+import numpy as np
+
+socketio = SocketIO(app)
+
+
+@app.before_first_request
+def init_app():
+    start_image_updater()
+
+
+def start_image_updater():
+     t = threading.Timer(1, start_image_updater)
+     t.daemon = True
+     t.start()
+
+     photo_number = np.genfromtxt( './photo_folder/filenumber.txt', unpack = True)
+     print('Updated image', photo_number)
+
+     image_name = "{{ url_for('static', filename=image_" + str(int(photo_number)) + ".jpg) }}"
+
+     socket.emit('update', image_name)
+
+
+
+
+
+# Update Website
+socketio.on('update')
+def handle_message(photo_number):
+    image_name = 'image_'+ photo_number + '.jpg'
+    return flask.render_template('show_picture.html', image_name = image_name)
+
+
+### Init socket
+socket = SocketIO()
+socket.init_app(app)
+
+
 @app.route('/')
 def test():
-    return flask.render_template('show_picture.html', image_name = image_name, name_url = name_url)
+    image_name = 'image_'+ '1' + '.jpg'
+    return flask.render_template('show_picture.html', image_name = image_name)
 
 
 @app.route('/test')
 def test_2():
     return 'Geklappt'
-
-@app.route(f'/' + str(image_number+1))
-def show_picture(image_number):
-    try:
-        print('im Try')
-        image_number +=1
-        image_name = 'image_' + str(image_number) + '.jpg'
-        name_url = "2; URL=localhost:5000/" + str(image_number)
-        return flask.render_template('show_picture.html', image_name = image_name, name_url = name_url )
-    except:
-        print('im except')
-        image_name = 'image_' + str(image_number) + '.jpg'
-        name_url ="2; URL=localhost:5000/" + str(image_number)
-        return flask.render_template('show_picture.html', image_name = image_name, name_url = name_url)
