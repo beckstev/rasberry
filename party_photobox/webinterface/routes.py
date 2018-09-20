@@ -13,6 +13,7 @@ def init_app():
 
 
 def start_image_updater():
+    #Updater 
      t = threading.Timer(1, start_image_updater)
      t.daemon = True
      t.start()
