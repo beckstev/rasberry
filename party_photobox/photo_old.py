@@ -22,18 +22,23 @@ def setup():
     return 0
 
 
-def take_a_photo(max_file_number):
+def take_a_photo():
     GPIO.output(PhotoPin, True)
     GPIO.output(ReadyPin,False)
 
+    with open('filenumber.txt', 'r') as f:
+        max_file_number = float(f.read())
+
     max_file_number += 1
-    np.savetxt('filenumber.txt', [max_file_number])
 
     gp( '--capture-image-and-download' ) #takeing a photo
     print('rename')
 
     os.rename( 'capt0000.jpg', 'photobox_' + str(int(max_file_number)) + '.jpg') #rename file
     print('photo saved')
+
+    
+    np.savetxt('filenumber.txt', [max_file_number])
 
     GPIO.output(PhotoPin, False)
     GPIO.output(ReadyPin,True)
@@ -43,27 +48,25 @@ def destroy ():
     GPIO.cleanup()
 
 def on_press(key):
-    if str(key) == "'.'":
+    print('Key',key)    
+
+    if str(key) == "u'.'":
         print('Take a Photo\n')
-        take_a_photo(max_file_number)
+        take_a_photo()
     else:
         print('nichts')
         pass
 
 
 ##Change Folder
-os.chdir("/home/pi/rasberry/photobox/photo_folder")
+os.chdir("/home/pi/rasberry/party_photobox/photo_folder")
 
-max_file_number = 0
-
-with open('filenumber.txt', 'r') as f:
-    max_file_number = float(f.read())
-
-print( type(max_file_number), max_file_number)
 ## Let's take some pictures!!
 setup()
-try:
-    with Listener( on_press=on_press,) as listener:
-    listener.join()
-except:
-    destroy()
+while True:
+
+	try:    
+    		with Listener( on_press=on_press,) as listener:
+        		listener.join()
+	except:
+    		destroy()

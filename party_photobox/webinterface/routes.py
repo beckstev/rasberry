@@ -14,13 +14,13 @@ def init_app():
 
 def start_image_updater():
     #Update
-     t = threading.Timer(0.01, start_image_updater)
+     t = threading.Timer(1, start_image_updater)
      t.daemon = True
      t.start()
      #Get the number of the newest photo
      photo_number = np.genfromtxt( './photo_folder/filenumber.txt', unpack = True)
      # Generate the name for the html template. I was not sure how to use a variable in "url_for", so I trie this as workaround
-     pic_name = "/photo_folder/image_" + str(int(photo_number)) + ".jpg"
+     pic_name = "/photo_folder/photobox_" + str(int(photo_number)) + ".jpg"
      emit_var = [ 'Bildnummer: ' + str(int(photo_number)), pic_name ]
      #Emit Update command
 
