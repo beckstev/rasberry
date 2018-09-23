@@ -13,17 +13,19 @@ def init_app():
 
 
 def start_image_updater():
-    #Updater 
-     t = threading.Timer(1, start_image_updater)
+    #Update
+     t = threading.Timer(0.01, start_image_updater)
      t.daemon = True
      t.start()
      #Get the number of the newest photo
      photo_number = np.genfromtxt( './photo_folder/filenumber.txt', unpack = True)
-     print('Updated image', photo_number)
      # Generate the name for the html template. I was not sure how to use a variable in "url_for", so I trie this as workaround
-     image_name = "{{ url_for('static', filename=image_" + str(int(photo_number)) + ".jpg) }}"
+     pic_name = "/photo_folder/image_" + str(int(photo_number)) + ".jpg"
+     emit_var = [ 'Bildnummer: ' + str(int(photo_number)), pic_name ]
      #Emit Update command
-     socket.emit('update', image_name)
+
+     socket.emit('update', emit_var)
+     #socket.emit('title_update', str(int(photo_number)))
 
 
 
@@ -36,7 +38,8 @@ socket.init_app(app)
 @app.route('/')
 def test():
     image_name = 'image_1.jpg'
-    return flask.render_template('show_picture.html', image_name = image_name)
+    image_number = '1'
+    return flask.render_template('show_picture.html', image_name = image_name, image_number = image_number)
 
 # Just a test function
 @app.route('/test')
