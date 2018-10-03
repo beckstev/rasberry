@@ -1,10 +1,10 @@
-import numpy as np
 import time
 import RPi.GPIO as GPIO
 from sh import gphoto2 as gp
-import numpy as np
 import os
 from pynput.keyboard import Listener
+import datetime as dtime
+import sqlite3 as sq
 
 #Status LED
 ReadyPin = 37 # This Led will glow, when we are ready to take a photo
@@ -22,22 +22,20 @@ def setup():
     return 0
 
 
-def take_a_photo(Cursor):
+def take_a_photo(Cursor,Connection):
     GPIO.output(PhotoPin, True)
     GPIO.output(ReadyPin,False)
 
     try: 
-        Cursor.execute(""" SELECT max(Image_Number) FROM image_number""")
-        max_number = Cursor.fetchall()[0][0]
+        Cursor.execute(""" SELECT max(Image_Number) FROM image_taken""")
+        max_file_number = Cursor.fetchall()[0][0]
     
-    except HiernochFehlerEintippenDerEntstehtWennesNochKeineDatenbankgibt:
-        baseCursor.execute(""" CREATE TABLE image_number(Image_Number SMALLINT ,Time_Stampt TEXT)""")
-        max_number = 1
+    except sq.OperationalError:
+        baseCursor.execute(""" CREATE TABLE image_taken(Image_Number SMALLINT ,Time_Stampt TEXT)""")
+        Connection.commit()
+        max_file_number = 0
+        pass
    
-    
-    with open('filenumber.txt', 'r') as f:
-        max_file_number = float(f.read())
-
     max_file_number += 1
 
     gp( '--capture-image-and-download' ) #takeing a photo
@@ -46,8 +44,8 @@ def take_a_photo(Cursor):
     os.rename( 'capt0000.jpg', 'photobox_' + str(int(max_file_number)) + '.jpg') #rename file
     print('photo saved')
 
-    
-    np.savetxt('filenumber.txt', [max_file_number])
+    Cursor.execute("""INSERT INTO image_taken VALUES({}, {})""".format(max_file_number,dtime.datetime.now().time().strftime("%H:%M")) )
+    Connection.commit()
 
     GPIO.output(PhotoPin, False)
     GPIO.output(ReadyPin,True)
@@ -56,12 +54,12 @@ def take_a_photo(Cursor):
 def destroy ():
     GPIO.cleanup()
 
-def on_press(key,Cursor):
+def on_press(key,Cursor,Connection):
     print('Key',key)    
 
     if str(key) == "u'.'":
         print('Take a Photo\n')
-        take_a_photo(Cursor)
+        take_a_photo(Cursor,Connection)
     else:
         print('nichts')
         pass
@@ -69,7 +67,7 @@ def on_press(key,Cursor):
 
 ##Change Folder
 os.chdir("/home/pi/rasberry/party_photobox/photo_folder")
-connection_number_log = sq.connect('image_number.dat')
+connection_number_log = sq.connect('image_taken.dat')
 image_numberCursor = connection_number_log.cursor()
 
 
