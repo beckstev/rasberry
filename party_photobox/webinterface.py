@@ -1,2 +1,2 @@
-#Main application module
+# coding: utf-8
 from webinterface import app

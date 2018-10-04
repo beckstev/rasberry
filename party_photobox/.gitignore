@@ -2,3 +2,5 @@ test.txt
 ID.txt
 admin_id.txt
 *.dat
+./stats_dats/*.dat
+./stats_dats/*.jpg

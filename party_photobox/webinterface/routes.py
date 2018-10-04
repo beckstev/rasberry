@@ -1,10 +1,14 @@
+# coding: utf-8
 import flask
 from webinterface import app
 from flask_socketio import SocketIO
 import threading
 import numpy as np
+import sqlite3 as sq
 
 socketio = SocketIO(app)
+connection_number_log = sq.connect('./stats_dats/image_taken.dat',check_same_thread=False)
+image_numberCursor = connection_number_log.cursor()
 
 
 @app.before_first_request
@@ -18,7 +22,9 @@ def start_image_updater():
      t.daemon = True
      t.start()
      #Get the number of the newest photo
-     photo_number = np.genfromtxt( './photo_folder/filenumber.txt', unpack = True)
+     image_numberCursor.execute(""" SELECT max(Image_Number) FROM image_taken""")
+     photo_number = image_numberCursor.fetchall()[0][0]
+     print(photo_number)
      # Generate the name for the html template. I was not sure how to use a variable in "url_for", so I trie this as workaround
      pic_name = "/photo_folder/photobox_" + str(int(photo_number)) + ".jpg"
      emit_var = [ 'Bildnummer: ' + str(int(photo_number)), pic_name ]

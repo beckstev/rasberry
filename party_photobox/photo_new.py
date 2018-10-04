@@ -22,44 +22,46 @@ def setup():
     return 0
 
 
-def take_a_photo(Cursor,Connection):
+def take_a_photo():
     GPIO.output(PhotoPin, True)
     GPIO.output(ReadyPin,False)
 
     try: 
-        Cursor.execute(""" SELECT max(Image_Number) FROM image_taken""")
-        max_file_number = Cursor.fetchall()[0][0]
-    
+        image_numberCursor.execute(""" SELECT max(Image_Number) FROM image_taken""")
+        max_file_number = image_numberCursor.fetchall()[0][0]
     except sq.OperationalError:
-        baseCursor.execute(""" CREATE TABLE image_taken(Image_Number SMALLINT ,Time_Stampt TEXT)""")
-        Connection.commit()
+        image_numberCursor.execute(""" CREATE TABLE image_taken(Image_Number SMALLINT ,Time_Stampt TEXT)""")
+        connection_number_log.commit()
         max_file_number = 0
         pass
    
     max_file_number += 1
-
+    print('taking')
     gp( '--capture-image-and-download' ) #takeing a photo
-    print('rename')
 
     os.rename( 'capt0000.jpg', 'photobox_' + str(int(max_file_number)) + '.jpg') #rename file
-    print('photo saved')
 
-    Cursor.execute("""INSERT INTO image_taken VALUES({}, {})""".format(max_file_number,dtime.datetime.now().time().strftime("%H:%M")) )
-    Connection.commit()
+    image_numberCursor.execute("""INSERT INTO image_taken VALUES({}, "{}")""".format(max_file_number,dtime.datetime.now().time().strftime("%H:%M")) )
+    connection_number_log.commit()
 
     GPIO.output(PhotoPin, False)
     GPIO.output(ReadyPin,True)
+    print('Done')
     return 0
 
 def destroy ():
     GPIO.cleanup()
+    connection_number_log.close()
 
-def on_press(key,Cursor,Connection):
-    print('Key',key)    
+def on_press(key): 
 
     if str(key) == "u'.'":
-        print('Take a Photo\n')
-        take_a_photo(Cursor,Connection)
+        take_a_photo()
+    elif str(key) == "u'x'":
+        Listener.stop()
+
+        destroy()
+        
     else:
         print('nichts')
         pass
@@ -67,7 +69,10 @@ def on_press(key,Cursor,Connection):
 
 ##Change Folder
 os.chdir("/home/pi/rasberry/party_photobox/photo_folder")
-connection_number_log = sq.connect('image_taken.dat')
+
+global connection_number_log
+global image_numberCursor
+connection_number_log = sq.connect('../stats_dats/image_taken.dat',check_same_thread=False)
 image_numberCursor = connection_number_log.cursor()
 
 
@@ -76,10 +81,9 @@ setup()
 while True:
 
 	try:    
-    		with Listener( on_press=on_press,) as listener: ##Hier muss ich noch den Datenbankcursor übergeben.
+    		with Listener( on_press=on_press,) as listener:
         		listener.join()
-	except:
+	except KeyboardInterrupt:
     		destroy()
+    		
 
-## Verwende eine Sqlite Datenbank anstatt das Textdokument, um Maximale Bilderzahl zu zuspeicher und auch später zu verwenden
-## Generell muss noch angepasst werden, wo die Bilder gespeichert werden.
