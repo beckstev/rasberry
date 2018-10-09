@@ -162,7 +162,16 @@ class PiPhotobox(object):
                 
                 try:
                   piBot.sendMessage(chat_id,str('Du erhälst Bild ') + str(command[1]) )
-                  piBot.sendPhoto(chat_id, photo=open('./photobox_' + str(command[1]) + '.jpg', 'rb'))
+
+                  ### For the Sony Alpha 6000 ###############################################################
+                  #piBot.sendPhoto(chat_id, photo=open('./photobox_' + str(command[1]) + '.jpg', 'rb'))
+                  ############################################################################################
+
+                  ### For the Canon camera ###############################################################
+                  canon_offset = 7000
+                  piBot.sendPhoto(chat_id, photo=open('./IMG_' + str( int(command[1])+canon_offset) + '.JPG', 'rb'))
+                  ############################################################################################
+                  
       
                   self.baseCursor.execute("""INSERT INTO user_log VALUES("{}", {}, {}, "{}")""".format(str(chat_name),chat_id, int(command[1]), str(dtime.datetime.now().time().strftime("%H:%M"))) )
                   self.connection_user_log.commit()
@@ -180,10 +189,15 @@ class PiPhotobox(object):
                   self.baseCursor.execute("""INSERT INTO user_log VALUES("{}", {}, {}, "{}")""".format(str(chat_name),chat_id, int(command[1]), str(dtime.datetime.now().time().strftime("%H:%M"))) )
                   self.connection_user_log.commit()
                   pass
-                
+                except IOError as e:
+                    piBot.sendMessage(chat_id, 'Es gibt kein Foto mit der Nummer: ' + str(command[1]) )
+                    piBot.sendMessage(self.admin_id, 'Nicht vorhandenes Foto wurde angefragt: ' + str(command[1])+'.\n\n Hier zur Sicherheit nochmal der Fehlercode: \n\n' + str(e) + '\n\n Der ausführende User ist: \n' + str(chat_name)) 
+                    pass
+                    
                 except Exception as e:
+                  print(e)
                   piBot.sendMessage(chat_id, 'Ein unbekannter Fehler ist aufgetreten. Steven wird benachrichtigt.')
-                  piBot.sendMessage(self.admin_id, 'Es ist ein Fehler bei dem verschicken des Fotos mit der Nummer ' + str(command[1]) + ' aufgetreten. Der Fehler Code lautet: \n' + str(e)+ '.\n Auf den Fehler wird mit \pass reagiert.')
+                  piBot.sendMessage(self.admin_id, 'Es ist ein Fehler bei dem verschicken des Fotos mit der Nummer ' + str(command[1]) + ' aufgetreten. Der Fehler Code lautet: \n' + str(e)+ '.\n Auf den Fehler wird mit \pass reagiert. Der verursachende User ist: \n' + str(chat_name)) 
                   pass
         
         elif command[0] == u'Stat':

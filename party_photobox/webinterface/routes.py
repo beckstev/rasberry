@@ -23,13 +23,29 @@ def start_image_updater():
      t.start()
      #Get the number of the newest photo
      image_numberCursor.execute(""" SELECT max(Image_Number) FROM image_taken""")
+
+    
+    
      photo_number = image_numberCursor.fetchall()[0][0]
      print(photo_number)
+
+     ### In further updates I will use an argument for this ###
+
+     ####### For the Sony Alpha 6000 #####################################################
      # Generate the name for the html template. I was not sure how to use a variable in "url_for", so I trie this as workaround
-     pic_name = "/photo_folder/photobox_" + str(int(photo_number)) + ".jpg"
+
+     #pic_name = "/photo_folder/photobox_" + str(int(photo_number)) + ".jpg"
+     #################################################################################################################
+
+    ####### For the Canon camera #####################################################
+     # Generate the name for the html template. I was not sure how to use a variable in "url_for", so I trie this as workaround
+     canon_offset = 7020
+     pic_name = "/photo_folder/IMG_" + str(int(photo_number+canon_offset)) + ".JPG"
+     ################################################################################################################
+
+
      emit_var = [ 'Bildnummer: ' + str(int(photo_number)), pic_name ]
      #Emit Update command
-
      socket.emit('update', emit_var)
      #socket.emit('title_update', str(int(photo_number)))
 

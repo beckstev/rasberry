@@ -7,24 +7,37 @@ import datetime as dtime
 import sqlite3 as sq
 
 #Status LED
-ReadyPin = 37 # This Led will glow, when we are ready to take a photo
-PhotoPin = 35 # This Led glows when we taking the phot
-SwitchPin = 33 # Switch to take a photo
+RedLedPin_1 = 7 # This Led will glow, when we are ready to take a photo
+RedLedPin_2 = 11 # This Led will glow, when we are ready to take a photo
+RedLedPin_3 = 13 # This Led will glow, when we are ready to take a photo
+RedLedPin_4 = 16 # This Led will glow, when we are ready to take a photo
+GreenLedPin = 12 # This Led will glow, when we are ready to take a photo
+
+
 
 
 def setup():
     GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
-    GPIO.setup(ReadyPin, GPIO.OUT)    # input mode
-    GPIO.setup(PhotoPin, GPIO.OUT)
-    GPIO.setup(SwitchPin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
-    GPIO.output(PhotoPin, False)
-    GPIO.output(ReadyPin,True)
+    GPIO.setup(RedLedPin_1, GPIO.OUT)    # input mode
+    GPIO.setup(RedLedPin_2, GPIO.OUT)    #
+    GPIO.setup(RedLedPin_3, GPIO.OUT)    #
+    GPIO.setup(RedLedPin_4, GPIO.OUT)    #
+    GPIO.setup(GreenLedPin, GPIO.OUT)    # 
+    
+    GPIO.output(RedLedPin_1, False)
+    GPIO.output(RedLedPin_2, False)
+    GPIO.output(RedLedPin_3, False)
+    GPIO.output(RedLedPin_4, False)
+    GPIO.output(GreenLedPin,True)
     return 0
 
 
 def take_a_photo():
-    GPIO.output(PhotoPin, True)
-    GPIO.output(ReadyPin,False)
+    GPIO.output(RedLedPin_1, True)
+    GPIO.output(RedLedPin_2, True)
+    GPIO.output(RedLedPin_3, True)
+    GPIO.output(RedLedPin_4, True)
+    GPIO.output(GreenLedPin,False)
 
     try: 
         image_numberCursor.execute(""" SELECT max(Image_Number) FROM image_taken""")
@@ -34,18 +47,38 @@ def take_a_photo():
         connection_number_log.commit()
         max_file_number = 0
         pass
-   
+       
     max_file_number += 1
-    print('taking')
+    print('taking_2')
     gp( '--capture-image-and-download' ) #takeing a photo
+    print('downloaded')
 
-    os.rename( 'capt0000.jpg', 'photobox_' + str(int(max_file_number)) + '.jpg') #rename file
+    ############### The os.rename is needed if you use a Sony Alpha 6000 ################################################################################
 
+    #os.rename( 'capt0000.jpg', 'photobox_' + str(int(max_file_number)) + '.jpg') #rename file
+    #image_numberCursor.execute("""INSERT INTO image_taken VALUES({}, "{}")""".format(max_file_number,dtime.datetime.now().time().strftime("%H:%M")) )
+
+    ###################################################################################################################################
+
+
+    ################ For the Canon camera I have to define an offest ##################################################################
+    canon_offset = 7000 # It is not used in this script. I just inserted here as a reminder.
+    
     image_numberCursor.execute("""INSERT INTO image_taken VALUES({}, "{}")""".format(max_file_number,dtime.datetime.now().time().strftime("%H:%M")) )
+    ###################################################################################################################################
+
+    
+
+
+    
     connection_number_log.commit()
 
-    GPIO.output(PhotoPin, False)
-    GPIO.output(ReadyPin,True)
+    GPIO.output(RedLedPin_1, False)
+    GPIO.output(RedLedPin_2, False)
+    GPIO.output(RedLedPin_3, False)
+    GPIO.output(RedLedPin_4, False)
+    GPIO.output(GreenLedPin,True)
+    
     print('Done')
     return 0
 
