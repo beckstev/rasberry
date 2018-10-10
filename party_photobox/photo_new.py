@@ -101,11 +101,11 @@ def on_press(key):
 
 
 ##Change Folder
-os.chdir("/home/pi/rasberry/party_photobox/photo_folder")
+os.chdir("/media/pi/Marten/photo_folder")
 
 global connection_number_log
 global image_numberCursor
-connection_number_log = sq.connect('../stats_dats/image_taken.dat',check_same_thread=False)
+connection_number_log = sq.connect('/home/pi/rasberry/party_photobox/stats_dats/image_taken.dat',check_same_thread=False)
 image_numberCursor = connection_number_log.cursor()
 
 
